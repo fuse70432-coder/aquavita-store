@@ -38,8 +38,9 @@ export function Checkout({ isOpen, onClose }: CheckoutProps) {
 
   if (!isOpen) return null;
 
-  const upiId = settings?.upi_id || 'YOUR_UPI_ID_HERE';
-  const upiPaymentString = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=AQUAVITA&am=${grandTotal.toFixed(2)}&cu=INR&tn=AQUAVITA Order`;
+  const upiId = settings?.upi_id?.trim() || '';
+  const validUpiId = /^[^\s@]+@[^\s@]+$/.test(upiId);
+  const upiPaymentString = validUpiId ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=ZORVEX&am=${grandTotal.toFixed(2)}&cu=INR&tn=ZORVEX Order` : '';
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,6 +71,12 @@ export function Checkout({ isOpen, onClose }: CheckoutProps) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    if (paymentMethod === 'upi' && !validUpiId) {
+      setError('Online UPI payment is currently unavailable. Please choose another method.');
+      setSubmitting(false);
+      return;
+    }
 
     if (paymentMethod === 'upi' && !screenshotFile) {
       setError('Please upload a payment screenshot to place an online order.');
@@ -322,10 +329,11 @@ export function Checkout({ isOpen, onClose }: CheckoutProps) {
                   </button>
                   <button
                     type="button"
+                    disabled={!validUpiId}
                     onClick={() => setPaymentMethod('upi')}
                     className={`flex items-center gap-2 rounded-sm border px-4 py-3 text-sm font-semibold transition-all ${
                       paymentMethod === 'upi'
-                        ? 'border-gold bg-gold/10 text-gold'
+                        ? 'border-accent bg-accent/10 text-accent-light'
                         : 'border-gold/20 text-muted hover:border-gold/40'
                     }`}
                   >
@@ -336,7 +344,7 @@ export function Checkout({ isOpen, onClose }: CheckoutProps) {
               </div>
 
               {/* UPI payment details */}
-              {paymentMethod === 'upi' && (
+              {paymentMethod === 'upi' && validUpiId && (
                 <div className="rounded-sm border border-aqua/25 bg-aqua/5 p-5">
                   <h4 className="mb-3 text-sm font-bold text-offwhite">UPI Payment</h4>
 

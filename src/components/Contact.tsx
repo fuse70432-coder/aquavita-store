@@ -15,18 +15,18 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="relative border-t border-gold/10 bg-navy-800 py-20 lg:py-28">
+    <section id="contact" className="relative border-t border-accent/10 bg-obsidian-900 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <Reveal className="mb-14 text-center">
           <div className="mx-auto mb-4 flex w-fit items-center gap-3">
-            <div className="h-px w-10 bg-gradient-to-r from-transparent to-gold" />
-            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+            <div className="h-px w-10 bg-gradient-to-r from-transparent to-accent" />
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-light">
               Get in Touch
             </span>
-            <div className="h-px w-10 bg-gradient-to-l from-transparent to-gold" />
+            <div className="h-px w-10 bg-gradient-to-l from-transparent to-accent" />
           </div>
           <h2 className="font-display text-3xl font-bold text-offwhite sm:text-4xl lg:text-5xl">
-            CONTACT <span className="text-gradient-gold">US</span>
+            CONTACT <span className="text-gradient-brand">US</span>
           </h2>
         </Reveal>
 
@@ -43,7 +43,7 @@ export function Contact() {
                     id="name"
                     type="text"
                     required
-                    className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-gold/50 focus:shadow-[0_0_20px_rgba(217,163,33,0.1)]"
+                    className="w-full rounded-sm border border-accent/20 bg-obsidian-800/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-accent/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)]"
                     placeholder="Your name"
                   />
                 </div>
@@ -54,7 +54,7 @@ export function Contact() {
                   <input
                     id="phone"
                     type="tel"
-                    className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-gold/50 focus:shadow-[0_0_20px_rgba(217,163,33,0.1)]"
+                    className="w-full rounded-sm border border-accent/20 bg-obsidian-800/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-accent/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)]"
                     placeholder="Your phone"
                   />
                 </div>
@@ -67,7 +67,7 @@ export function Contact() {
                   id="email"
                   type="email"
                   required
-                  className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-gold/50 focus:shadow-[0_0_20px_rgba(217,163,33,0.1)]"
+                  className="w-full rounded-sm border border-accent/20 bg-obsidian-800/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-accent/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)]"
                   placeholder="you@example.com"
                 />
               </div>
@@ -79,21 +79,21 @@ export function Contact() {
                   id="message"
                   rows={4}
                   required
-                  className="w-full resize-none rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-gold/50 focus:shadow-[0_0_20px_rgba(217,163,33,0.1)]"
+                  className="w-full resize-none rounded-sm border border-accent/20 bg-obsidian-800/60 px-4 py-3 text-sm text-offwhite placeholder-muted/60 outline-none transition-all focus:border-accent/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)]"
                   placeholder="Tell us how we can help..."
                 />
               </div>
 
               <button
                 type="submit"
-                className="group flex w-full items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-aqua to-aqua-light py-3.5 text-sm font-bold text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,159,227,0.4)]"
+                className="group flex w-full items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-accent to-accent2 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.4)]"
               >
                 Send Message
                 <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
 
               {submitted && (
-                <p className="rounded-sm border border-aqua/30 bg-aqua/10 px-4 py-3 text-center text-sm text-aqua-light">
+                <p className="rounded-sm border border-accent/30 bg-accent/10 px-4 py-3 text-center text-sm text-accent-light">
                   Thank you! Your message has been sent.
                 </p>
               )}
@@ -102,18 +102,18 @@ export function Contact() {
 
           {/* Contact info */}
           <Reveal delay={2}>
-            <div className="flex h-full flex-col justify-between rounded-sm border border-gold/20 bg-navy-900/40 p-8">
+            <div className="flex h-full flex-col justify-between rounded-sm border border-accent/20 bg-obsidian-800/40 p-8">
               <div>
                 <h3 className="font-display text-2xl font-bold text-offwhite">Connect With Us</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">
-                  Have questions about AQUAVITA Premium Prawn Bites? We're here to help
-                  you give your fish the best nutrition possible.
+                  Have questions about your order or a product? We're here to help
+                  you get the most out of your ZORVEX shopping experience.
                 </p>
 
                 <div className="mt-8 space-y-5">
                   <a href="tel:7559955088" className="group flex items-center gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/25 transition-all group-hover:border-gold group-hover:shadow-[0_0_20px_rgba(217,163,33,0.15)]">
-                      <Phone className="h-5 w-5 text-gold-light" strokeWidth={1.5} />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-accent/25 transition-all group-hover:border-accent group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+                      <Phone className="h-5 w-5 text-accent-light" strokeWidth={1.5} />
                     </div>
                     <div>
                       <span className="block text-xs uppercase tracking-wider text-muted">Phone</span>
@@ -122,18 +122,18 @@ export function Contact() {
                   </a>
 
                   <div className="flex items-center gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/25">
-                      <Mail className="h-5 w-5 text-gold-light" strokeWidth={1.5} />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-accent/25">
+                      <Mail className="h-5 w-5 text-accent-light" strokeWidth={1.5} />
                     </div>
                     <div>
                       <span className="block text-xs uppercase tracking-wider text-muted">Email</span>
-                      <span className="text-sm font-semibold text-offwhite">info@aquavita.com</span>
+                      <span className="text-sm font-semibold text-offwhite">info@zorvex.com</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/25">
-                      <MapPin className="h-5 w-5 text-gold-light" strokeWidth={1.5} />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-accent/25">
+                      <MapPin className="h-5 w-5 text-accent-light" strokeWidth={1.5} />
                     </div>
                     <div>
                       <span className="block text-xs uppercase tracking-wider text-muted">Location</span>
@@ -144,26 +144,28 @@ export function Contact() {
               </div>
 
               {/* Social */}
-              <div className="mt-8 border-t border-gold/10 pt-6">
+              <div className="mt-8 border-t border-accent/10 pt-6">
                 <span className="mb-4 block text-xs font-semibold uppercase tracking-wider text-muted">
                   Follow Us
                 </span>
                 <div className="flex gap-3">
                   {[
-                    { icon: Instagram, label: 'Instagram', href: settings?.instagram_url || '#' },
-                    { icon: Facebook, label: 'Facebook', href: settings?.facebook_url || '#' },
-                    { icon: MessageCircle, label: 'WhatsApp', href: settings?.whatsapp_url || '#' },
+                    { icon: Instagram, label: 'Instagram', href: settings?.instagram_url || '' },
+                    { icon: Facebook, label: 'Facebook', href: settings?.facebook_url || '' },
+                    { icon: MessageCircle, label: 'WhatsApp', href: settings?.whatsapp_url || '' },
                   ].map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target={social.href !== '#' ? '_blank' : undefined}
-                      rel={social.href !== '#' ? 'noopener noreferrer' : undefined}
-                      aria-label={social.label}
-                      className="flex h-11 w-11 items-center justify-center rounded-sm border border-gold/25 text-gold transition-all duration-300 hover:border-gold hover:bg-gold/10 hover:shadow-[0_0_20px_rgba(217,163,33,0.15)]"
-                    >
-                      <social.icon className="h-5 w-5" strokeWidth={1.5} />
-                    </a>
+                    social.href ? (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.label}
+                        className="flex h-11 w-11 items-center justify-center rounded-sm border border-accent/25 text-accent-light transition-all duration-300 hover:border-accent hover:bg-accent/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                      >
+                        <social.icon className="h-5 w-5" strokeWidth={1.5} />
+                      </a>
+                    ) : null
                   ))}
                 </div>
               </div>

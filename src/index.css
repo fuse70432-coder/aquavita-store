@@ -8,8 +8,8 @@
   }
 
   body {
-    background-color: #050D12;
-    color: #F5F5F5;
+    background-color: #0B0F17;
+    color: #F8FAFC;
     font-family: 'Manrope', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
@@ -21,39 +21,42 @@
   }
 
   ::selection {
-    background-color: rgba(0, 159, 227, 0.3);
-    color: #F5F5F5;
+    background-color: rgba(99, 102, 241, 0.3);
+    color: #F8FAFC;
   }
 }
 
 @layer utilities {
   .text-gradient-gold {
-    background: linear-gradient(135deg, #F0C34A 0%, #D9A321 50%, #B8860B 100%);
+    background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .text-gradient-aqua {
-    background: linear-gradient(135deg, #00B8E6 0%, #009FE3 100%);
+  .text-gradient-accent {
+    background: linear-gradient(135deg, #818CF8 0%, #6366F1 50%, #A855F7 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .border-gradient-gold {
-    border-image: linear-gradient(135deg, #F0C34A, #D9A321, #B8860B) 1;
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #60A5FA 0%, #818CF8 50%, #C084FC 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .glass-card {
-    background: rgba(11, 23, 29, 0.7);
+    background: rgba(17, 22, 32, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(217, 163, 33, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.15);
   }
 
   .gold-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, #D9A321 50%, transparent);
+    background: linear-gradient(90deg, transparent, #6366F1 50%, transparent);
   }
 
   .scrollbar-hide::-webkit-scrollbar {
@@ -70,14 +73,14 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #050D12;
+  background: #0B0F17;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #009FE3, #0B171D);
+  background: linear-gradient(180deg, #6366F1, #1A1F2E);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00B8E6;
+  background: #818CF8;
 }
 
 /* Reveal-on-scroll */

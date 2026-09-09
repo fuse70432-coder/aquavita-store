@@ -4,6 +4,7 @@ import type { Product } from '@/types';
 import { isOutOfStock } from '@/types';
 import { useCart } from '@/cart/CartContext';
 import { StarRating } from '@/components/StarRating';
+import { discountPercent } from '@/types';
 import { ProductImage } from '@/components/ProductImage';
 
 interface ProductGridCardProps {
@@ -55,7 +56,7 @@ export function ProductGridCard({ product, onCardClick }: ProductGridCardProps) 
 
       {/* Details */}
       <div className="flex flex-1 flex-col p-5">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-aqua-light">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent-light">
           {product.tagline}
         </span>
         <h3 className="mt-1.5 font-display text-lg font-bold leading-tight text-offwhite">
@@ -73,20 +74,12 @@ export function ProductGridCard({ product, onCardClick }: ProductGridCardProps) 
         </p>
 
         <div className="mt-4 flex flex-wrap items-baseline gap-2">
-          <span className="font-display text-2xl font-bold text-gradient-gold">
-            ₹{product.price.toFixed(2)}
-          </span>
-          {product.mrp != null && product.mrp > product.price && (
-            <>
-              <span className="text-sm text-muted line-through">
-                ₹{product.mrp.toFixed(2)}
-              </span>
-              <span className="rounded-sm bg-green-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-green-400">
-                {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
-              </span>
-            </>
-          )}
+          {product.mrp != null && product.mrp > product.price && <span className="text-sm text-muted line-through">₹{product.mrp.toFixed(2)}</span>}
+          <span className="font-display text-2xl font-bold text-gradient-brand">₹{product.price.toFixed(2)}</span>
+          {product.mrp != null && product.mrp > product.price && <span className="rounded-sm bg-green-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-green-400">{discountPercent(product.mrp, product.price)}% OFF</span>}
         </div>
+
+        {product.codAvailable && <span className="mt-3 w-fit rounded-sm border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-green-400">COD Available</span>}
 
         {/* Quantity + buttons */}
         <div className="mt-auto pt-5">

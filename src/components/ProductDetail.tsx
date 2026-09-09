@@ -5,6 +5,7 @@ import { isOutOfStock } from '@/types';
 import { useCart } from '@/cart/CartContext';
 import { StarRating } from '@/components/StarRating';
 import { ProductImage } from '@/components/ProductImage';
+import { discountPercent } from '@/types';
 
 interface ProductDetailProps {
   product: Product | null;
@@ -87,23 +88,15 @@ export function ProductDetail({ product, onClose }: ProductDetailProps) {
             </p>
 
             <div className="mt-5 flex flex-wrap items-baseline gap-3">
-              <span className="font-display text-3xl font-bold text-gradient-gold">
-                ₹{product.price.toFixed(2)}
-              </span>
-              {product.mrp != null && product.mrp > product.price && (
-                <>
-                  <span className="text-base text-muted line-through">
-                    ₹{product.mrp.toFixed(2)}
-                  </span>
-                  <span className="rounded-sm bg-green-500/15 px-2.5 py-1 text-xs font-bold uppercase text-green-400">
-                    {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
-                  </span>
-                </>
-              )}
+              {product.mrp != null && product.mrp > product.price && <span className="text-base text-muted line-through">₹{product.mrp.toFixed(2)}</span>}
+              <span className="font-display text-3xl font-bold text-gradient-brand">₹{product.price.toFixed(2)}</span>
+              {product.mrp != null && product.mrp > product.price && <span className="rounded-sm bg-green-500/15 px-2.5 py-1 text-xs font-bold uppercase text-green-400">{discountPercent(product.mrp, product.price)}% OFF</span>}
               {outOfStock && (
                 <span className="text-sm font-semibold text-red-400">Currently Unavailable</span>
               )}
             </div>
+
+            {product.codAvailable && <div className="mt-4 rounded-sm border border-green-500/25 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-400">Cash on Delivery Available</div>}
 
             {/* Shipping notice */}
             <div className="mt-4 flex items-center gap-2 rounded-sm border border-aqua/20 bg-aqua/5 px-4 py-3">

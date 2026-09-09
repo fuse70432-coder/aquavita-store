@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CartProvider } from '@/cart/CartContext';
 import { StoreSettingsProvider } from '@/store/StoreSettingsContext';
+import { CategoriesProvider } from '@/store/CategoriesContext';
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
@@ -8,13 +9,6 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { Hero } from '@/components/Hero';
 import { CategoryCards } from '@/components/CategoryCards';
 import { ProductCatalog, type CategoryFilter } from '@/components/ProductCatalog';
-import { Benefits } from '@/components/Benefits';
-import { WhyAquavita } from '@/components/WhyAquavita';
-import { WhatsInside } from '@/components/WhatsInside';
-import { FeedingGuide } from '@/components/FeedingGuide';
-import { StorageCaution } from '@/components/StorageCaution';
-import { Reviews } from '@/components/Reviews';
-import { CTASection } from '@/components/CTASection';
 import { Contact } from '@/components/Contact';
 import { Footer } from '@/components/Footer';
 import { Checkout } from '@/components/Checkout';
@@ -40,8 +34,8 @@ function AdminRoute() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-navy-900">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold/30 border-t-gold" />
+      <div className="flex min-h-screen items-center justify-center bg-obsidian-900">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
       </div>
     );
   }
@@ -61,6 +55,7 @@ function Storefront() {
   return (
     <CartProvider>
       <StoreSettingsProvider>
+        <CategoriesProvider>
         <AnnouncementBar />
         <Navbar />
         <CartDrawer onCheckout={() => setCheckoutOpen(true)} />
@@ -68,17 +63,11 @@ function Storefront() {
           <Hero />
           <CategoryCards onSelectCategory={handleSelectCategory} />
           <ProductCatalog activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-          <Benefits />
-          <WhyAquavita />
-          <WhatsInside />
-          <FeedingGuide />
-          <StorageCaution />
-          <Reviews />
-          <CTASection />
           <Contact />
         </main>
         <Footer />
         <Checkout isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+        </CategoriesProvider>
       </StoreSettingsProvider>
     </CartProvider>
   );
@@ -91,7 +80,9 @@ function AppContent() {
     return (
       <AuthProvider>
         <StoreSettingsProvider>
-          <AdminRoute />
+          <CategoriesProvider>
+            <AdminRoute />
+          </CategoriesProvider>
         </StoreSettingsProvider>
       </AuthProvider>
     );

@@ -5,26 +5,47 @@ export default {
     extend: {
       colors: {
         navy: {
-          900: '#050D12',
-          800: '#0B171D',
-          700: '#0F2027',
-          600: '#152932',
+          900: '#0B0F17',
+          800: '#111620',
+          700: '#1A1F2E',
+          600: '#252B3D',
         },
         aqua: {
-          DEFAULT: '#009FE3',
-          light: '#00B8E6',
-          glow: '#33B5E8',
+          DEFAULT: '#6366F1',
+          light: '#818CF8',
+          glow: '#A855F7',
+        },
+        obsidian: {
+          950: '#070912',
+          900: '#0B0F17',
+          800: '#111620',
+          700: '#1A1F2E',
+          600: '#252B3D',
+        },
+        accent: {
+          DEFAULT: '#6366F1',
+          light: '#818CF8',
+          dark: '#4F46E5',
+        },
+        accent2: {
+          DEFAULT: '#A855F7',
+          light: '#C084FC',
+          dark: '#9333EA',
+        },
+        blue2: {
+          DEFAULT: '#3B82F6',
+          light: '#60A5FA',
         },
         gold: {
-          DEFAULT: '#D9A321',
-          light: '#F0C34A',
-          dark: '#B8860B',
+          DEFAULT: '#F59E0B',
+          light: '#FCD34D',
+          dark: '#D97706',
         },
-        offwhite: '#F5F5F5',
-        muted: '#AAB5BA',
+        offwhite: '#F8FAFC',
+        muted: '#94A3B8',
       },
       fontFamily: {
-        display: ['Cormorant Garamond', 'serif'],
+        display: ['"Cormorant Garamond"', 'serif'],
         sans: ['Manrope', 'system-ui', 'sans-serif'],
       },
       animation: {
@@ -32,9 +53,7 @@ export default {
         'fade-in': 'fadeIn 1s ease-out forwards',
         'float': 'float 6s ease-in-out infinite',
         'float-slow': 'float 9s ease-in-out infinite',
-        'bubble': 'bubble 8s ease-in infinite',
         'shimmer': 'shimmer 3s ease-in-out infinite',
-        'glow-pulse': 'glowPulse 4s ease-in-out infinite',
       },
       keyframes: {
         fadeUp: {
@@ -49,18 +68,9 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-20px)' },
         },
-        bubble: {
-          '0%': { transform: 'translateY(0) scale(1)', opacity: '0.6' },
-          '50%': { opacity: '0.3' },
-          '100%': { transform: 'translateY(-200px) scale(0.5)', opacity: '0' },
-        },
         shimmer: {
           '0%, 100%': { opacity: '0.5' },
           '50%': { opacity: '1' },
-        },
-        glowPulse: {
-          '0%, 100%': { boxShadow: '0 0 30px rgba(0,159,227,0.15)' },
-          '50%': { boxShadow: '0 0 60px rgba(0,159,227,0.3)' },
         },
       },
     },

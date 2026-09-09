@@ -2,15 +2,16 @@ import { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } fr
 import {
   Plus, Pencil, Trash2, X, LogOut, Droplet, Save, AlertCircle, Package, Search,
   Copy, ExternalLink, Clipboard, ShoppingCart, Settings, DollarSign, CheckCircle2,
-  Instagram, Facebook, MessageCircle, Truck, Upload, ImageIcon,
+  Instagram, Facebook, MessageCircle, Truck, Upload, ImageIcon, Layers, Edit3, Eye, EyeOff,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/auth/AuthContext';
 import { useStoreSettings } from '@/store/StoreSettingsContext';
-import type { ProductRow, ProductCategory, OrderRow } from '@/types';
+import { useCategories } from '@/store/CategoriesContext';
+import type { ProductRow, ProductCategory, OrderRow, Category } from '@/types';
 import { ProductImage } from '@/components/ProductImage';
 
-type Tab = 'products' | 'orders' | 'settings';
+type Tab = 'products' | 'orders' | 'categories' | 'settings';
 
 type EditingProduct = Partial<ProductRow> & { id?: string };
 
@@ -24,11 +25,12 @@ const EMPTY_PRODUCT: EditingProduct = {
   badge: '',
   stock: 0,
   is_active: true,
-  category: 'fish-food' as ProductCategory,
+  category: '',
   supplier_link: '',
   meesho_price: 0,
   rating: 4.5,
   review_count: 0,
+  cod_available: false,
 };
 
 const ORDER_STATUS_COLORS: Record<string, string> = {
@@ -50,10 +52,10 @@ export function AdminDashboard() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-navy-800">
-              <Droplet className="h-4 w-4 text-aqua-light" fill="currentColor" />
+              <Droplet className="h-4 w-4 text-accent-light" fill="currentColor" />
             </div>
             <div>
-              <span className="font-display text-lg font-bold tracking-[0.15em] text-offwhite">AQUAVITA</span>
+              <span className="font-display text-lg font-bold tracking-[0.15em] text-offwhite">ZORVEX</span>
               <span className="ml-2 text-[9px] font-medium uppercase tracking-[0.3em] text-gold/80">Admin</span>
             </div>
           </div>
@@ -74,6 +76,7 @@ export function AdminDashboard() {
           {([
             { id: 'products' as Tab, label: 'Products', icon: Package },
             { id: 'orders' as Tab, label: 'Orders', icon: ShoppingCart },
+            { id: 'categories' as Tab, label: 'Categories', icon: Layers },
             { id: 'settings' as Tab, label: 'Store Settings', icon: Settings },
           ]).map((t) => (
             <button
@@ -95,6 +98,7 @@ export function AdminDashboard() {
       <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         {tab === 'products' && <ProductsTab />}
         {tab === 'orders' && <OrdersTab />}
+        {tab === 'categories' && <CategoriesTab />}
         {tab === 'settings' && <SettingsTab />}
       </div>
     </div>
@@ -144,11 +148,12 @@ function ProductsTab() {
       badge: editing.badge || null,
       stock: Number(editing.stock),
       is_active: editing.is_active ?? true,
-      category: editing.category || 'fish-food',
+      category: editing.category || null,
       supplier_link: editing.supplier_link || null,
       meesho_price: editing.meesho_price != null ? Number(editing.meesho_price) : null,
       rating: Number(editing.rating) || 4.5,
       review_count: Number(editing.review_count) || 0,
+      cod_available: editing.cod_available ?? false,
     };
 
     let result;
@@ -301,8 +306,8 @@ function ProductsTab() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`inline-flex rounded-sm px-2.5 py-1 text-xs font-medium ${product.category === 'fish-food' ? 'bg-gold/15 text-gold-light' : 'bg-aqua/15 text-aqua-light'}`}>
-                        {product.category === 'fish-food' ? 'Fish Food' : 'Accessories'}
+                      <span className="inline-flex rounded-sm bg-accent/15 px-2.5 py-1 text-xs font-medium text-accent-light">
+                        {product.category || 'Uncategorized'}
                       </span>
                     </td>
                     <td className="px-4 py-4">
@@ -467,7 +472,7 @@ function ProductEditModal({
           <div>
             <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Name</label>
             <input type="text" required value={editing.name ?? ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-              className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-gold/50" placeholder="AQUAVITA Premium Prawn Bites" />
+              className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-gold/50" placeholder="ZORVEX Premium Prawn Bites" />
           </div>
 
           <div>
@@ -562,11 +567,7 @@ function ProductEditModal({
             </div>
             <div>
               <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Category</label>
-              <select value={editing.category ?? 'fish-food'} onChange={(e) => setEditing({ ...editing, category: e.target.value as ProductCategory })}
-                className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-gold/50">
-                <option value="fish-food">Fish Food & Nutrition</option>
-                <option value="accessories">Aquarium Accessories</option>
-              </select>
+              <CategorySelect value={editing.category ?? ''} onChange={(val) => setEditing({ ...editing, category: val })} />
             </div>
           </div>
 
@@ -622,6 +623,293 @@ function ProductEditModal({
         </form>
       </div>
     </div>
+  );
+}
+
+/* ============ CATEGORIES TAB ============ */
+
+function CategoriesTab() {
+  const { categories, loading, refresh } = useCategories();
+  const [editing, setEditing] = useState<Partial<Category> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Category | null>(null);
+
+  const slugify = (text: string) =>
+    text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editing) return;
+    setSaving(true);
+    setError(null);
+
+    const name = (editing.name ?? '').trim();
+    if (!name) {
+      setError('Category name is required.');
+      setSaving(false);
+      return;
+    }
+
+    const slug = slugify(editing.slug || name);
+    const payload = {
+      name,
+      slug,
+      description: editing.description?.trim() || null,
+      is_active: editing.is_active ?? true,
+      sort_order: editing.sort_order ?? 0,
+      updated_at: new Date().toISOString(),
+    };
+
+    let result;
+    if (editing.id) {
+      result = await supabase.from('categories').update(payload).eq('id', editing.id);
+    } else {
+      result = await supabase.from('categories').insert({ ...payload, created_at: new Date().toISOString() });
+    }
+
+    if (result.error) {
+      setError(result.error.message);
+      setSaving(false);
+      return;
+    }
+
+    setEditing(null);
+    setSaving(false);
+    refresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error: deleteError } = await supabase.from('categories').delete().eq('id', id);
+    if (deleteError) {
+      setError(deleteError.message);
+      return;
+    }
+    setConfirmDelete(null);
+    refresh();
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-20"><p className="text-muted">Loading categories...</p></div>;
+  }
+
+  return (
+    <>
+      {error && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-sm border border-red-500/30 bg-red-500/10 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-400" />
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300"><X className="h-4 w-4" /></button>
+        </div>
+      )}
+
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-offwhite">Categories</h1>
+          <p className="mt-1 text-sm text-muted">Manage your product categories. Changes appear on the storefront instantly.</p>
+        </div>
+        <button
+          onClick={() => setEditing({ name: '', slug: '', description: '', is_active: true, sort_order: 0 })}
+          className="flex items-center gap-2 rounded-sm bg-gradient-to-r from-accent to-accent2 px-5 py-2.5 text-sm font-bold text-white transition-all hover:shadow-[0_0_25px_rgba(99,102,241,0.35)]"
+        >
+          <Plus className="h-4 w-4" />
+          Add Category
+        </button>
+      </div>
+
+      {categories.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-sm border border-accent/15 bg-obsidian-800/30 py-20">
+          <Layers className="mb-4 h-10 w-10 text-muted" />
+          <p className="text-muted">No categories yet.</p>
+          <button
+            onClick={() => setEditing({ name: '', slug: '', description: '', is_active: true, sort_order: 0 })}
+            className="mt-4 flex items-center gap-2 rounded-sm border border-accent/50 px-5 py-2.5 text-sm font-semibold text-accent-light transition-all hover:border-accent hover:bg-accent/10"
+          >
+            <Plus className="h-4 w-4" />
+            Add Your First Category
+          </button>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-sm border border-accent/15">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-accent/15 bg-obsidian-800/60">
+                <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-accent-light">Name</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-accent-light">Slug</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-accent-light">Status</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-accent-light">Order</th>
+                <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-accent-light">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((cat) => (
+                <tr key={cat.id} className="border-b border-accent/10 transition-colors hover:bg-obsidian-800/30">
+                  <td className="px-4 py-4">
+                    <p className="text-sm font-semibold text-offwhite">{cat.name}</p>
+                    {cat.description && <p className="text-xs text-muted">{cat.description}</p>}
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="font-mono text-xs text-muted">{cat.slug}</span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className={`inline-flex rounded-sm px-2.5 py-1 text-xs font-medium ${cat.is_active ? 'bg-green-500/15 text-green-400' : 'bg-muted/10 text-muted'}`}>
+                      {cat.is_active ? 'Active' : 'Hidden'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-muted">{cat.sort_order}</span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setEditing({ ...cat })}
+                        className="flex h-8 w-8 items-center justify-center rounded-sm border border-accent/25 text-accent-light transition-all hover:border-accent hover:bg-accent/10"
+                        aria-label="Edit category"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(cat)}
+                        className="flex h-8 w-8 items-center justify-center rounded-sm border border-red-500/25 text-red-400 transition-all hover:border-red-500 hover:bg-red-500/10"
+                        aria-label="Delete category"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Edit / Create modal */}
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
+          <div className="absolute inset-0 bg-obsidian-900/80 backdrop-blur-sm" onClick={() => setEditing(null)} />
+          <div className="relative w-full max-w-md rounded-sm border border-accent/25 bg-obsidian-800 p-8">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-display text-xl font-bold text-offwhite">{editing.id ? 'Edit Category' : 'Add Category'}</h2>
+              <button onClick={() => setEditing(null)} className="flex h-8 w-8 items-center justify-center rounded-sm border border-accent/25 text-offwhite hover:border-accent">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleSave} className="space-y-5">
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editing.name ?? ''}
+                  onChange={(e) => setEditing({ ...editing, name: e.target.value, slug: editing.slug || slugify(e.target.value) })}
+                  className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  placeholder="Electronics"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Slug</label>
+                <input
+                  type="text"
+                  value={editing.slug ?? ''}
+                  onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                  className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  placeholder="electronics"
+                />
+                <p className="mt-1 text-xs text-muted">URL-safe identifier. Auto-generated from name if left empty.</p>
+              </div>
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Description (optional)</label>
+                <textarea
+                  rows={2}
+                  value={editing.description ?? ''}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  className="w-full resize-none rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  placeholder="Short description shown on the homepage"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Sort Order</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editing.sort_order ?? 0}
+                    onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Status</label>
+                  <select
+                    value={editing.is_active ? 'true' : 'false'}
+                    onChange={(e) => setEditing({ ...editing, is_active: e.target.value === 'true' })}
+                    className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  >
+                    <option value="true">Active</option>
+                    <option value="false">Hidden</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 border-t border-accent/15 pt-5">
+                <button type="button" onClick={() => setEditing(null)} className="flex-1 rounded-sm border border-accent/25 py-3 text-sm font-semibold text-muted transition-all hover:border-accent/50 hover:text-offwhite">Cancel</button>
+                <button type="submit" disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-accent to-accent2 py-3 text-sm font-bold text-white transition-all hover:shadow-[0_0_25px_rgba(99,102,241,0.35)] disabled:opacity-60">
+                  <Save className="h-4 w-4" />
+                  {saving ? 'Saving...' : 'Save Category'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
+          <div className="absolute inset-0 bg-obsidian-900/80 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="relative w-full max-w-md rounded-sm border border-red-500/25 bg-obsidian-800 p-8">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-red-500/30">
+              <Trash2 className="h-6 w-6 text-red-400" />
+            </div>
+            <h3 className="font-display text-xl font-bold text-offwhite">Delete Category?</h3>
+            <p className="mt-2 text-sm text-muted">
+              Are you sure you want to delete "{confirmDelete.name}"? Products in this category will remain but won't appear under this filter until reassigned.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 rounded-sm border border-accent/25 py-3 text-sm font-semibold text-muted transition-all hover:border-accent/50 hover:text-offwhite">Cancel</button>
+              <button onClick={() => handleDelete(confirmDelete.id)} className="flex-1 rounded-sm bg-red-500 py-3 text-sm font-bold text-white transition-all hover:bg-red-600">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function CategorySelect({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const { categories, loading } = useCategories();
+
+  if (loading) {
+    return (
+      <select disabled className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-muted outline-none">
+        <option value="">Loading categories...</option>
+      </select>
+    );
+  }
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+    >
+      <option value="">Select a category</option>
+      {categories.map((cat) => (
+        <option key={cat.id} value={cat.slug}>{cat.name}</option>
+      ))}
+    </select>
   );
 }
 
@@ -914,7 +1202,7 @@ function SettingsTab() {
                 type="url"
                 defaultValue={settings?.instagram_url ?? ''}
                 className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-gold/50"
-                placeholder="https://instagram.com/aquavita"
+                placeholder="https://instagram.com/zorvex"
               />
             </div>
 
@@ -925,7 +1213,7 @@ function SettingsTab() {
                 type="url"
                 defaultValue={settings?.facebook_url ?? ''}
                 className="w-full rounded-sm border border-gold/20 bg-navy-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-gold/50"
-                placeholder="https://facebook.com/aquavita"
+                placeholder="https://facebook.com/zorvex"
               />
             </div>
 
