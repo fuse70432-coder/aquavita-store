@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      console.error('[ZORVEX Auth] signIn error:', error);
+      console.error('[AQUAVITA Auth] signIn error:', error);
       return { error: error.message };
     }
     if (data.session) {

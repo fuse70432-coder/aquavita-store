@@ -1,15 +1,4 @@
-export type ProductCategory = string;
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  is_active: boolean;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
+export type ProductCategory = 'fish-food' | 'accessories';
 
 export interface Product {
   id: string;
@@ -17,17 +6,15 @@ export interface Product {
   tagline: string;
   description: string;
   price: number;
-  mrp?: number;
   image: string;
   badge?: string | null;
   stock?: number;
   is_active?: boolean;
-  category: string;
+  category: ProductCategory;
   supplierLink?: string | null;
   meeshoPrice?: number | null;
   rating?: number;
   reviewCount?: number;
-  codAvailable?: boolean;
 }
 
 export interface ProductRow {
@@ -36,17 +23,15 @@ export interface ProductRow {
   tagline: string;
   description: string;
   price: number;
-  mrp: number;
   image_url: string;
   badge: string | null;
   stock: number;
   is_active: boolean;
-  category: string;
+  category: ProductCategory;
   supplier_link: string | null;
   meesho_price: number | null;
   rating: number;
   review_count: number;
-  cod_available: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +43,6 @@ export function productRowToProduct(row: ProductRow): Product {
     tagline: row.tagline,
     description: row.description,
     price: Number(row.price),
-    mrp: row.mrp != null ? Number(row.mrp) : 0,
     image: row.image_url,
     badge: row.badge,
     stock: row.stock,
@@ -68,7 +52,6 @@ export function productRowToProduct(row: ProductRow): Product {
     meeshoPrice: row.meesho_price != null ? Number(row.meesho_price) : null,
     rating: Number(row.rating),
     reviewCount: row.review_count,
-    codAvailable: row.cod_available ?? false,
   };
 }
 
@@ -100,7 +83,6 @@ export interface OrderRow {
   total_amount: number;
   status: string;
   created_at: string;
-  payment_screenshot_url: string | null;
 }
 
 export interface OrderItem {
@@ -113,15 +95,4 @@ export interface OrderItem {
 
 export function isOutOfStock(product: Product): boolean {
   return (product.stock != null && product.stock <= 0) || product.is_active === false;
-}
-
-export function formatPrice(value: number): string {
-  return `₹${value.toFixed(2)}`;
-}
-
-export function discountPercent(mrp: number, price: number): number {
-  if (mrp > 0 && mrp > price) {
-    return Math.round(((mrp - price) / mrp) * 100);
-  }
-  return 0;
 }
