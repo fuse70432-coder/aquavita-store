@@ -7,7 +7,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/auth/AuthContext';
 import { useStoreSettings } from '@/store/StoreSettingsContext';
-import { useCategories } from '@/store/CategoriesContext';
+import { useCategories, useAllCategories } from '@/store/CategoriesContext';
 import type { ProductRow, ProductCategory, OrderRow, Category } from '@/types';
 import { ProductImage } from '@/components/ProductImage';
 
@@ -629,11 +629,15 @@ function ProductEditModal({
 /* ============ CATEGORIES TAB ============ */
 
 function CategoriesTab() {
-  const { categories, loading, refresh } = useCategories();
+  const { categories, loading, refresh } = useAllCategories();
   const [editing, setEditing] = useState<Partial<Category> | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Category | null>(null);
+  const [productCount, setProductCount] = useState<number | null>(null);
+  const [checkingProducts, setCheckingProducts] = useState(false);
+  const [reassignTo, setReassignTo] = useState<string>('');
+  const [deleting, setDeleting] = useState(false);
 
   const slugify = (text: string) =>
     text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
@@ -679,13 +683,48 @@ function CategoriesTab() {
     refresh();
   };
 
-  const handleDelete = async (id: string) => {
+  const checkProductCount = async (slug: string) => {
+    setCheckingProducts(true);
+    const { count, error: countError } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('category', slug);
+    if (countError) {
+      setError(countError.message);
+      setCheckingProducts(false);
+      return;
+    }
+    setProductCount(count ?? 0);
+    setCheckingProducts(false);
+  };
+
+  const handleDelete = async (id: string, slug: string) => {
+    setDeleting(true);
+    setError(null);
+
+    if (productCount != null && productCount > 0 && reassignTo) {
+      const { error: reassignError } = await supabase
+        .from('products')
+        .update({ category: reassignTo })
+        .eq('category', slug);
+      if (reassignError) {
+        setError(reassignError.message);
+        setDeleting(false);
+        return;
+      }
+    }
+
     const { error: deleteError } = await supabase.from('categories').delete().eq('id', id);
     if (deleteError) {
       setError(deleteError.message);
+      setDeleting(false);
       return;
     }
+
     setConfirmDelete(null);
+    setProductCount(null);
+    setReassignTo('');
+    setDeleting(false);
     refresh();
   };
 
@@ -868,18 +907,62 @@ function CategoriesTab() {
       {/* Delete confirmation */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
-          <div className="absolute inset-0 bg-obsidian-900/80 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="absolute inset-0 bg-obsidian-900/80 backdrop-blur-sm" onClick={() => !deleting && setConfirmDelete(null)} />
           <div className="relative w-full max-w-md rounded-sm border border-red-500/25 bg-obsidian-800 p-8">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-red-500/30">
               <Trash2 className="h-6 w-6 text-red-400" />
             </div>
             <h3 className="font-display text-xl font-bold text-offwhite">Delete Category?</h3>
             <p className="mt-2 text-sm text-muted">
-              Are you sure you want to delete "{confirmDelete.name}"? Products in this category will remain but won't appear under this filter until reassigned.
+              Are you sure you want to delete "{confirmDelete.name}"?
             </p>
+
+            {checkingProducts ? (
+              <p className="mt-4 text-sm text-muted">Checking for products in this category...</p>
+            ) : productCount == null ? (
+              <button
+                onClick={() => checkProductCount(confirmDelete.slug)}
+                className="mt-4 flex items-center gap-2 rounded-sm border border-accent/30 px-4 py-2.5 text-sm font-semibold text-accent-light transition-all hover:border-accent hover:bg-accent/10"
+              >
+                <AlertCircle className="h-4 w-4" />
+                Check for linked products
+              </button>
+            ) : productCount > 0 ? (
+              <div className="mt-4 space-y-4">
+                <div className="rounded-sm border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-light">
+                  {productCount} product{productCount > 1 ? 's' : ''} use{productCount === 1 ? 's' : ''} this category. Reassign them before deleting to avoid broken references.
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">Reassign products to</label>
+                  <select
+                    value={reassignTo}
+                    onChange={(e) => setReassignTo(e.target.value)}
+                    className="w-full rounded-sm border border-accent/20 bg-obsidian-900/60 px-4 py-3 text-sm text-offwhite outline-none focus:border-accent/50"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.filter((c) => c.id !== confirmDelete.id).map((c) => (
+                      <option key={c.id} value={c.slug}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-green-400">No products are using this category. Safe to delete.</p>
+            )}
+
             <div className="mt-6 flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 rounded-sm border border-accent/25 py-3 text-sm font-semibold text-muted transition-all hover:border-accent/50 hover:text-offwhite">Cancel</button>
-              <button onClick={() => handleDelete(confirmDelete.id)} className="flex-1 rounded-sm bg-red-500 py-3 text-sm font-bold text-white transition-all hover:bg-red-600">Delete</button>
+              <button
+                onClick={() => { setConfirmDelete(null); setProductCount(null); setReassignTo(''); }}
+                disabled={deleting}
+                className="flex-1 rounded-sm border border-accent/25 py-3 text-sm font-semibold text-muted transition-all hover:border-accent/50 hover:text-offwhite disabled:opacity-60"
+              >Cancel</button>
+              <button
+                onClick={() => handleDelete(confirmDelete.id, confirmDelete.slug)}
+                disabled={deleting || (productCount != null && productCount > 0 && !reassignTo)}
+                className="flex-1 rounded-sm bg-red-500 py-3 text-sm font-bold text-white transition-all hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
             </div>
           </div>
         </div>

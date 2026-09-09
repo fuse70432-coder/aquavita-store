@@ -48,3 +48,30 @@ export function useCategories() {
   if (!ctx) throw new Error('useCategories must be used within CategoriesProvider');
   return ctx;
 }
+
+export function useAllCategories() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data, error: fetchError } = await supabase
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true });
+    if (fetchError) {
+      setError(fetchError.message);
+    } else if (data) {
+      setCategories(data as Category[]);
+      setError(null);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { categories, loading, error, refresh };
+}
