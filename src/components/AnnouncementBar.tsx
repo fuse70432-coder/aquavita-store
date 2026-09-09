@@ -7,7 +7,7 @@ export function AnnouncementBar() {
   if (!visible) return null;
 
   return (
-    <div className="relative z-50 flex items-center justify-center gap-3 bg-gradient-to-r from-aqua to-aqua-light px-4 py-2 text-white">
+    <div className="relative z-50 flex items-center justify-center gap-3 bg-gradient-to-r from-accent to-accent2 px-4 py-2 text-white">
       <Truck className="h-4 w-4 flex-shrink-0" />
       <p className="text-center text-xs font-medium sm:text-sm">
         Orders are dispatched twice a week — every <strong>Sunday &amp; Wednesday</strong>
