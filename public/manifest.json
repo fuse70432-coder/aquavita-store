@@ -1,22 +1,22 @@
 {
-  "name": "AQUAVITA",
-  "short_name": "AQUAVITA",
-  "description": "AQUAVITA Premium Aquarium Fish Food Store",
+  "name": "ZORVEX",
+  "short_name": "ZORVEX",
+  "description": "ZORVEX — Shop More. Live Better. Premium products for modern living.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0f172a",
+  "background_color": "#0B0F17",
+  "theme_color": "#0B0F17",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
